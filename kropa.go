@@ -163,13 +163,19 @@ func configGetter(cfg config.ExtraConfig) *xtraConfig {
 }
 
 func (x *xtraConfig) checkPermission(l logging.Logger, r *proxy.Request) (bool, error) {
-	token := r.Headers[authHeader][0]
+	token := ""
+	auth, ok := r.Headers[authHeader]
+	if ok {
+		token = auth[0]
+	}
+
 	if token == "" {
 		l.Debug("[kropa] Token is empty")
+	} else {
+		token = strings.TrimPrefix(token, "Bearer ")
+		//Just in case using lower case bearer
+		token = strings.TrimPrefix(token, "bearer ")
 	}
-	token = strings.TrimPrefix(token, "Bearer ")
-	//Just in case using lower case bearer
-	token = strings.TrimPrefix(token, "bearer ")
 
 	req := OpaRequest{
 		Input: Input{
