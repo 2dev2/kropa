@@ -65,7 +65,7 @@ func ProxyFactory(l logging.Logger, pf proxy.Factory) proxy.FactoryFunc {
 		conf := configGetter(cfg.ExtraConfig)
 
 		if conf == nil {
-			l.Debug("[kropa] No config for jwtextract ")
+			l.Debug("[kropa] No config for policy agent ")
 			return next, nil
 		}
 
@@ -81,7 +81,7 @@ func BackendFactory(l logging.Logger, bf proxy.BackendFactory) proxy.BackendFact
 		conf := configGetter(cfg.ExtraConfig)
 
 		if conf == nil {
-			l.Debug("[kropa] No config for jwtextract ")
+			l.Debug("[kropa] No config for policy agent ")
 		} else {
 			l.Debug("[kropa] Package name ", conf.PackageName)
 		}
