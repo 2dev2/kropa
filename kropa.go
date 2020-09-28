@@ -181,7 +181,7 @@ func (x *xtraConfig) checkPermission(l logging.Logger, r *proxy.Request) (bool, 
 		Input: Input{
 			Method: r.Method,
 			Token:  token,
-			Path:   strings.Split(strings.TrimPrefix(r.Path, "/"), "/"),
+			Path:   strings.Split(strings.TrimPrefix(r.URL.Path, "/"), "/"),
 		},
 	}
 
