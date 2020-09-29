@@ -116,6 +116,9 @@ func Middleware(l logging.Logger, config *xtraConfig) proxy.Middleware {
 				return &proxy.Response{
 					IsComplete: true,
 					Metadata: proxy.Metadata{
+						Headers: map[string][]string{
+							"Content-Type": []string{"application/json"},
+						},
 						StatusCode: http.StatusUnauthorized,
 					},
 					Io: bytes.NewBuffer(o),
@@ -146,6 +149,9 @@ func newProxy(l logging.Logger, config *xtraConfig, next proxy.Proxy) proxy.Prox
 			return &proxy.Response{
 				IsComplete: true,
 				Metadata: proxy.Metadata{
+					Headers: map[string][]string{
+						"Content-Type": []string{"application/json"},
+					},
 					StatusCode: http.StatusUnauthorized,
 				},
 				Io: bytes.NewBuffer(o),
