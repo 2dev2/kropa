@@ -106,7 +106,20 @@ func Middleware(l logging.Logger, config *xtraConfig) proxy.Middleware {
 			}
 
 			if !res {
-				return nil, &PermissionError{}
+				l.Error("[kropa] Permission denied")
+				o, err := json.Marshal(map[string]interface{}{
+					"error": "Permission denied",
+				})
+				if err != nil {
+					return nil, err
+				}
+				return &proxy.Response{
+					IsComplete: true,
+					Metadata: proxy.Metadata{
+						StatusCode: http.StatusUnauthorized,
+					},
+					Io: bytes.NewBuffer(o),
+				}, &PermissionError{}
 			}
 
 			resp, err := next[0](ctx, req)
@@ -123,7 +136,20 @@ func newProxy(l logging.Logger, config *xtraConfig, next proxy.Proxy) proxy.Prox
 		}
 
 		if !res {
-			return nil, &PermissionError{}
+			l.Error("[kropa] Permission denied")
+			o, err := json.Marshal(map[string]interface{}{
+				"error": "Permission denied",
+			})
+			if err != nil {
+				return nil, err
+			}
+			return &proxy.Response{
+				IsComplete: true,
+				Metadata: proxy.Metadata{
+					StatusCode: http.StatusUnauthorized,
+				},
+				Io: bytes.NewBuffer(o),
+			}, &PermissionError{}
 		}
 
 		return next(ctx, r)
