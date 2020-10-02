@@ -21,6 +21,7 @@ type xtraConfig struct {
 	ServiceAddress string
 	PackageName    string
 	Directive      string
+	IncludePayload bool
 }
 
 //OpaRequest opa request model
@@ -35,9 +36,10 @@ type OpaResponse struct {
 
 //Input opa input model
 type Input struct {
-	Method string   `json:"method,omitempty" mapstructure:"method"`
-	Path   []string `json:"path,omitempty" mapstructure:"path"`
-	Token  string   `json:"token,omitempty" mapstructure:"token"`
+	Method  string      `json:"method,omitempty" mapstructure:"method"`
+	Path    []string    `json:"path,omitempty" mapstructure:"path"`
+	Token   string      `json:"token,omitempty" mapstructure:"token"`
+	Payload interface{} `json:"payload,omitempty" mapstructure:"payload"`
 }
 
 //PermissionError error permission
@@ -191,6 +193,11 @@ func configGetter(cfg config.ExtraConfig) *xtraConfig {
 		conf.Directive = dr
 	}
 
+	pl, ok := tmp["with_payload"].(bool)
+	if ok {
+		conf.IncludePayload = pl
+	}
+
 	return &conf
 }
 
@@ -215,6 +222,18 @@ func (x *xtraConfig) checkPermission(l logging.Logger, r *proxy.Request) (bool, 
 			Token:  token,
 			Path:   strings.Split(strings.TrimPrefix(r.URL.Path, "/"), "/"),
 		},
+	}
+
+	if x.IncludePayload {
+		raw, _ := ioutil.ReadAll(r.Body)
+		//log.Println("RAW body ", raw)
+		r.Body = ioutil.NopCloser(bytes.NewReader(raw))
+		var payload map[string]interface{}
+		if err := json.Unmarshal(raw, &payload); err != nil {
+			l.Error("Error unmarshal payload")
+		}
+
+		req.Input.Payload = payload
 	}
 
 	o, err := json.Marshal(req)
